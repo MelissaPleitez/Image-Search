@@ -10,6 +10,7 @@ function start_App(){
         const pages= 40;
         let pagination;
         let iter;
+        let actual_page=1
         
         form.addEventListener('submit', submitting_data)
         
@@ -25,15 +26,16 @@ function start_App(){
         }
 
 
-        applying_API(mainVlue)
+        applying_API()
         
         }
 
 
-      function applying_API(mainVlue){
+      function applying_API(){
 
+        const mainVlue= searchInfo.value 
         const API_KEY= '38880226-4562c75a60c21007dbb5e4037'
-        const API=`https://pixabay.com/api/?key=${API_KEY}&q=${mainVlue}&per_page=${pages}`
+        const API=`https://pixabay.com/api/?key=${API_KEY}&q=${mainVlue}&per_page=${pages}&page=${actual_page}`
 
         fetch(API)
             .then(result=> result.json())
@@ -49,7 +51,7 @@ function start_App(){
         clean_html(result)
         allValues.forEach(info => {
 
-            const {id, previewURL, views, pageURL, largeImageURL, user } = info
+            const {views, pageURL, largeImageURL, user } = info
 
             const divContainer = document.createElement('div')
             divContainer.classList.add('w-100', 'p-3', 'mb-4')
@@ -65,11 +67,16 @@ function start_App(){
             imgContainer.src= largeImageURL
             const divBody = document.createElement('div')
             divBody.classList.add('card-body')
-            const h4Info = document.createElement('h4')
+            const h4Info = document.createElement('div')
             h4Info.classList.add('card-title')
-            h4Info.textContent= `Users: ${user} - Views: ${views}`
+            h4Info.innerHTML= `
+            <p class="fw-bold">Creator User: <span class="">@${user}</span></p>
+            <p class="fw-bold">Views: <span class="">${views}</span></p>
+            `
             const aInfo = document.createElement('a')
+            aInfo.classList.add('btn', 'btn-outline-info')
             aInfo.href= pageURL
+            aInfo.target='_blank'
             aInfo.textContent= 'Page URL'
 
             divBody.appendChild(h4Info)
@@ -87,7 +94,6 @@ function start_App(){
       }
 
       function* Calculating_pagination(total){
-        console.log(total)
         for(let i= 1; i<=total; i++){
           yield i;
         }
@@ -111,46 +117,51 @@ function start_App(){
       }
 
 
-      function clean_html(value){
-        while(value.firstChild){
-          value.removeChild(value.firstChild)
-        }
-      }
+     
 
       function showing_pagination(){
+        clean_html(paginationresult)
         iter = Calculating_pagination(pagination)
         
           while(true){
             const {value, done}= iter.next()
             if(done) return
 
-            const nav = document.createElement('nav')
-            nav.ariaLabel= 'Page navigation'
-            const ulPage= document.createElement('ul')
-            ulPage.classList.add('pagination')
+           
             const liPage= document.createElement('li')
             liPage.classList.add('page-item')
-            const aPage= document.createElement('a')
+            const aPage= document.createElement('button')
             aPage.classList.add('page-link')
             aPage.textContent= value
 
-            ulPage.appendChild(liPage)
-            liPage.appendChild(aPage)
-            nav.appendChild(ulPage)
+            aPage.onclick=function(){
+              actual_page = value
+               applying_API()
+               
+            }
 
-            paginationresult.appendChild(nav)
+            if(actual_page=== value){
+              liPage.classList.add('active')
+              liPage.ariaCurrent= "page"
+            }
+
+            liPage.appendChild(aPage)
+           
+
+            paginationresult.appendChild(liPage)
+          }
+        }
+
+
+        function clean_html(value){
+          while(value.firstChild){
+            value.removeChild(value.firstChild)
           }
         }
 
     }
 
    
-
-   
-    
-    
-   
-
     }
 
     
