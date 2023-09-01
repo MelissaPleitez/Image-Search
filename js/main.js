@@ -31,19 +31,33 @@ function start_App(){
         }
 
 
-      function applying_API(){
+      async function applying_API(){
 
         const mainVlue= searchInfo.value 
         const API_KEY= '38880226-4562c75a60c21007dbb5e4037'
         const API=`https://pixabay.com/api/?key=${API_KEY}&q=${mainVlue}&per_page=${pages}&page=${actual_page}`
 
-        fetch(API)
-            .then(result=> result.json())
-            .then(response=>{
-              pagination= calculate_pages(response.totalHits)
-              creating_html(response.hits)
-            }  
-               )
+        // fetch(API)
+        //     .then(result=> result.json())
+        //     .then(response=>{
+        //       pagination= calculate_pages(response.totalHits)
+        //       creating_html(response.hits)
+        //     }  
+        //        )
+
+               try {
+
+              const response = await fetch(API);
+              const results = await response.json()
+
+              pagination= calculate_pages(results.totalHits)
+              creating_html(results.hits)
+                
+               } catch (error) {
+                console.error(error)
+               }
+
+
 
       }
 
